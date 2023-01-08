@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <script src="/socket.io/socket.io.js"></script>
+    <div id="chat"></div>
+    <input type="text" id="chat-input" value="/all"/>
+    <button id="chat-btn-post">post</button>
+    <script>
+        const chat = document.getElementById('chat')
+        const input = document.getElementById('chat-input')
+        const socket = io()
+        let message = undefined
+
+        document.getElementById('chat-input').addEventListener('change', (e)=>{
+            message = e.target.value
+        })
+        document.getElementById('chat-btn-post').addEventListener('click', ()=>{
+            socket.emit('client-message-requisition', socket.id, message)
+            message = undefined
+            input.value = "/all"
+            
+        })
+
+        function add_chat(chat, client, message, color){
+            const view_message = document.createElement('p')
+            view_message.innerText = message
+            view_message.style.color = color
+            view_message.id = client
+            view_message.addEventListener('click', (e)=>{
+                input.value = `/${e.target.id}`
+            })
+            chat.appendChild(view_message)
+        }
+
+        socket.on('connect', ()=>{
+        })
+        socket.on('server_message', (client, message, color, mode)=>{
+            if(mode){
+                if(mode == 'all'){
+                    add_chat(chat, client, message, color)
+                }
+                else if(mode == 'admin'){
+                    add_chat(chat, client, `|ADMIN| -> ${message}`, color)
+                }
+                else if(mode == socket.id){
+                    add_chat(chat, client, message, 'rgb(80,0,0)')
+                }
+            }
+        })
+    </script>
+</body>
+</html>
