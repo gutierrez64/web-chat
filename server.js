@@ -22,6 +22,9 @@ io.on('connection', (socket)=>{
             socket.broadcast.emit('server_message', client, `|${socket.id}| -> ${message}`, 'blue', mode)
         }
     })
+    socket.on('disconnect', ()=>{
+        socket.broadcast.emit('server_message', 'SERVER', `${socket.id} left`, 'red', 'admin')
+    })
 })
 
 const port = 3000;
